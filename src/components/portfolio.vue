@@ -108,6 +108,7 @@ onMounted(() => {
       gsap.to(inner, {
         scale: 0.8,
         opacity: 0,
+        rotateX: 5,
         filter: "blur(10px)",
         ease: "power1.inOut",
         scrollTrigger: {
@@ -181,6 +182,7 @@ onUnmounted(() => {
       width: 100%;
       display: flex;
       justify-content: center;
+      perspective: 1000px;
 
       .card-inner {
         width: 100%;
