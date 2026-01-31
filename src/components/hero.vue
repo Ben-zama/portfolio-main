@@ -107,9 +107,9 @@ const background =
     : "/background-desktop.png";
 
 onMounted(() => {
-/*   if ("scrollRestoration" in history) {
+if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
-  } */
+  }
 
   lenisInstance = new Lenis();
 
@@ -328,14 +328,16 @@ onUnmounted(() => {
 
   .preloader {
     position: fixed;
+    top: 0;
+    left: 0;
     inset: 0;
     width: 100%;
     height: 100svh;
     max-height: 1000px;
-    z-index: 100;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 9999;
 
     .loader-wrapper {
       position: relative;
