@@ -1,7 +1,7 @@
 <template>
   <section id="services" ref="sectionRef">
     <div class="intro">
-      <h2>Crafting Digital Experiences</h2>
+      <h2 ref="introText">Crafting Digital Experiences</h2>
     </div>
 
     <div class="sticky-wrapper" ref="stickyWrapperRef">
@@ -64,8 +64,8 @@
     </div>
 
     <div class="outro">
-      <h2>Let’s Build Something Remarkable</h2>
-      <CTA name="Contact me" link="#contact" />
+      <h2 ref="outroText">Let’s Build Something Remarkable</h2>
+      <CTA ref="ctaRef" name="Contact me" link="#contact" />
     </div>
   </section>
 </template>
@@ -84,14 +84,78 @@ const stickyWrapperRef = ref(null);
 const headerRef = ref(null);
 const cardContainerRef = ref(null);
 
+const introText = ref(null);
+const outroText = ref(null);
+
+const ctaRef = ref(null);
+
 let ctx;
+
+function splitIntoChars(el) {
+  const originalText = el.innerText;
+  el.setAttribute("aria-label", originalText);
+
+  el.innerHTML = originalText
+    .split(" ")
+    .map((word) => {
+      const chars = word
+        .split("")
+        .map(
+          (char) =>
+            `<span class="char" aria-hidden="true" style="display:inline-block;">${char}</span>`
+        )
+        .join("");
+      return `<span class="word" aria-hidden="true" style="display:inline-flex; overflow:hidden; vertical-align:bottom;">${chars}</span>`;
+    })
+    .join(" "); 
+
+  return el.querySelectorAll(".char");
+}
+
+function animateTextOnScroll(el, trigger) {
+  const chars = splitIntoChars(el);
+
+  gsap.set(chars, { yPercent: 110, opacity: 0 });
+
+  gsap.to(chars, {
+    yPercent: 0,
+    opacity: 1,
+    duration: 0.6,
+    ease: "power3.out",
+    stagger: 0.018,
+    scrollTrigger: {
+      trigger,
+      start: "top 80%",
+      end: "top 40%",
+      toggleActions: "play none none reverse",
+    },
+  });
+}
 
 onMounted(() => {
   ctx = gsap.context(() => {
+    // ── Character-by-character text reveals ──────────────────────────────
+    animateTextOnScroll(introText.value, introText.value.closest(".intro"));
+    animateTextOnScroll(outroText.value, outroText.value.closest(".outro"));
+
+    gsap.from(ctaRef.value.$el, {
+      y: 50,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power3.out",
+      // Adding a slight delay so it follows the text animation naturally
+      delay: 0.3, 
+      scrollTrigger: {
+        trigger: ".outro",
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      },
+    });
+
     const mm = gsap.matchMedia();
 
     // --- MOBILE & TABLET ANIMATIONS (< 1024px) ---
-    mm.add("(max-width: 1023px)", () => {
+    mm.add("(max-width: 1279px)", () => {
       gsap.from(headerRef.value, {
         scrollTrigger: {
           trigger: ".sticky-header",
@@ -103,7 +167,7 @@ onMounted(() => {
         duration: 1.2,
         ease: "power2.out",
       });
-      // Simple stagger fade-in for mobile (Content is already visible via CSS)
+      // Simple stagger fade-in for mobile
       gsap.from(".card", {
         scrollTrigger: {
           trigger: ".card-container",
@@ -119,7 +183,7 @@ onMounted(() => {
     });
 
     // --- DESKTOP ANIMATIONS (>= 1024px) ---
-    mm.add("(min-width: 1024px)", () => {
+    mm.add("(min-width: 1280px)", () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: stickyWrapperRef.value,
@@ -178,7 +242,7 @@ onMounted(() => {
       // Buffer
       tl.to({}, { duration: 0.5 });
     });
-  }, sectionRef.value);
+  }, sectionRef.value); // Scoped to the section
 });
 
 onUnmounted(() => {
@@ -328,7 +392,7 @@ onUnmounted(() => {
   color: var(--secondary);
 }
 
-@media (min-width: 600px) and (max-width: 1023px) {
+@media (min-width: 600px) and (max-width: 1279px) {
   .outro {
     gap: 100px;
   }
@@ -344,7 +408,7 @@ onUnmounted(() => {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .intro,
   .outro {
     height: 100vh;

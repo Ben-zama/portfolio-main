@@ -100,26 +100,61 @@ gsap.registerPlugin(CustomEase, SplitText);
 
 const preloader = ref(null);
 let lenisInstance = null;
+const background = ref("");
 
-const background =
-  window.innerWidth < 600
-    ? "/background-mobile.png"
-    : "/background-desktop.png";
-
-onMounted(() => {
-if ("scrollRestoration" in history) {
+if (typeof window !== "undefined") {
+  if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
   }
+  window.scrollTo(0, 0);
+}
+
+let initialWidth = 0;
+
+const handleResize = () => {
+  if (window.innerWidth !== initialWidth) {
+    location.reload();
+  }
+};
+
+const lockScroll = () => {
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.height = "100vh";
+  document.body.style.height = "100vh";
+  document.documentElement.style.touchAction = "none";
+  document.body.style.touchAction = "none";
+};
+
+const unlockScroll = () => {
+  document.documentElement.style.overflow = "";
+  document.body.style.overflow = "";
+  document.documentElement.style.height = "";
+  document.body.style.height = "";
+  document.documentElement.style.touchAction = "";
+  document.body.style.touchAction = "";
+};
+
+onMounted(() => {
+  lockScroll();
+
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 10);
+
+  initialWidth = window.innerWidth;
+  background.value =
+    window.innerWidth < 600
+      ? "/background-mobile.png"
+      : "/background-desktop.png";
+
+  window.addEventListener("resize", handleResize);
 
   lenisInstance = new Lenis();
 
-  window.scrollTo(0, 0);
   lenisInstance.scrollTo(0, { immediate: true });
-
-  // 2. Stop scrolling immediately
   lenisInstance.stop();
 
-  // Standard Lenis RAF loop
   function raf(time) {
     lenisInstance.raf(time);
     requestAnimationFrame(raf);
@@ -128,7 +163,6 @@ if ("scrollRestoration" in history) {
 
   CustomEase.create("hop", "0.9, 0, 0.1, 1");
 
-  // 1. Initialize SplitText
   const headerSplit = new SplitText(".container1 h2", {
     type: "words",
     wordsClass: "word",
@@ -137,23 +171,24 @@ if ("scrollRestoration" in history) {
     type: "words",
     wordsClass: "word",
   });
-
-  // 2. Select Loader Words
   const loaderWords = gsap.utils.toArray(".loader-word");
 
-  // Set initial states
   gsap.set([headerSplit.words, infoSplit.words], { y: 50, opacity: 0 });
-  gsap.set(loaderWords, { opacity: 0, y: 20 });
+  gsap.set(loaderWords, {
+    opacity: 0,
+    xPercent: -50,
+    yPercent: -50,
+    y: 20,
+  });
 
   const tl = gsap.timeline({
     onComplete: () => {
+      unlockScroll();
       lenisInstance.start();
     },
   });
 
-  // 3. Word Loop Loader Sequence
-  // Loops through each word: Fade in & Slide up -> Pause -> Fade out & Slide up
-  loaderWords.forEach((word, i) => {
+  loaderWords.forEach((word) => {
     tl.to(word, {
       opacity: 1,
       y: 0,
@@ -164,11 +199,10 @@ if ("scrollRestoration" in history) {
       y: -20,
       duration: 0.4,
       ease: "power2.in",
-      delay: 0.3, // How long the word stays visible
+      delay: 0.3,
     });
   });
 
-  // 4. Remove Preloader
   tl.to(
     preloader.value,
     {
@@ -181,7 +215,6 @@ if ("scrollRestoration" in history) {
     "-=0.2"
   );
 
-  // 5. Image ClipPath and Scale reveal
   tl.to(
     ".hero-image",
     {
@@ -218,7 +251,6 @@ if ("scrollRestoration" in history) {
     "<"
   );
 
-  // 6. Reveal Content (The Text)
   tl.to(
     headerSplit.words,
     {
@@ -243,7 +275,6 @@ if ("scrollRestoration" in history) {
     "-=0.8"
   );
 
-  // 7. Reveal cta button and badge
   tl.fromTo(
     ".badge, #hero .button",
     {
@@ -253,14 +284,13 @@ if ("scrollRestoration" in history) {
     {
       y: 0,
       opacity: 1,
-      stagger: 0.2, // Reduced stagger for a snappier feel
+      stagger: 0.2,
       duration: 1,
       ease: "power3.out",
     },
     "-=0.5"
   );
 
-  // 8. Reveal Socials and UI
   tl.from(
     ".left-line, .right-line",
     {
@@ -271,7 +301,6 @@ if ("scrollRestoration" in history) {
     "-=0.8"
   );
 
-  // 9. logo reveal
   tl.from(
     "#hero .logo",
     {
@@ -283,7 +312,6 @@ if ("scrollRestoration" in history) {
     "<"
   );
 
-  // 10. Header reveal
   tl.fromTo(
     "#hero .header",
     {
@@ -300,6 +328,7 @@ if ("scrollRestoration" in history) {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
   if (lenisInstance) {
     lenisInstance.destroy();
   }
@@ -350,7 +379,6 @@ onUnmounted(() => {
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%);
       font-family: var(--alternate-font);
       font-weight: 900;
       font-size: 4rem;

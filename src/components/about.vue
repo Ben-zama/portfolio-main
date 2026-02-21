@@ -1,29 +1,9 @@
 <template>
   <section id="about">
     <p class="main-text" ref="mainTextRef">
-      <span
-        v-for="(word, index) in part1Words"
-        :key="`p1-${index}`"
-        class="word-span"
-      >
-        {{ word }}&nbsp;
-      </span>
-
-      <span
-        v-for="(word, index) in accentWords"
-        :key="`ac-${index}`"
-        class="word-span accent"
-      >
-        {{ word }}&nbsp;
-      </span>
-
-      <span
-        v-for="(word, index) in part2Words"
-        :key="`p2-${index}`"
-        class="word-span"
-      >
-        {{ word }}&nbsp;
-      </span>
+      <span class="text-block">I’m a frontend </span>
+      <span class="text-block accent">developer turning ideas into fast, responsive, and visually engaging web experiences. </span>
+      <span class="text-block">With 3 years of experience, I build clean, accessible interfaces that feel smooth on any device.</span>
     </p>
 
     <div class="highlights" ref="highlightsRef">
@@ -92,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, onMounted } from "vue";
 import CtaButton from "./ctaButton.vue";
 import {
   PhBriefcase,
@@ -104,42 +84,60 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- Data Preparation for Word Splitting ---
-const textRawPart1 = "I’m a frontend";
-const textRawAccent =
-  "developer turning ideas into fast, responsive, and visually engaging web experiences.";
-const textRawPart2 =
-  "With 3 years of experience, I build clean, accessible interfaces that feel smooth on any device";
-
-// Helper to split string into an array of words
-const splitText = (text) => text.split(" ");
-
-const part1Words = computed(() => splitText(textRawPart1));
-const accentWords = computed(() => splitText(textRawAccent));
-const part2Words = computed(() => splitText(textRawPart2));
-
 // --- Refs for GSAP targets ---
 const mainTextRef = ref(null);
 const highlightsRef = ref(null);
 const timelineRef = ref(null);
 
-onMounted(async () => {
-  // Wait for Vue to render the v-for word spans
-  await nextTick();
+/**
+ * Wraps every character in a <span> and returns the spans.
+ * Preserves spaces by wrapping them too.
+ */
+function splitIntoChars(el) {
+  const originalText = el.innerText;
+  el.setAttribute("aria-label", originalText);
 
-  // 1. Main Text "Light up word by word" Animation
-  // Select all generated word spans
-  const words = mainTextRef.value.querySelectorAll(".word-span");
+  el.innerHTML = originalText
+    .split(" ")
+    .map((word) => {
+      const chars = word
+        .split("")
+        .map(
+          (char) =>
+            `<span class="char" aria-hidden="true" style="display:inline-block;">${char}</span>`
+        )
+        .join("");
+      return `<span class="word" aria-hidden="true" style="display:inline-flex; overflow:hidden; vertical-align:bottom;">${chars}</span>`;
+    })
+    .join(" "); 
 
-  gsap.to(words, {
-    opacity: 1, // Animate to full opacity
-    stagger: 0.05, // Slight delay between each word appearing
-    ease: "power1.inOut",
+  return Array.from(el.querySelectorAll(".char"));
+}
+
+onMounted(() => {
+  // 1. Character-by-Character Main Text Reveal
+  const textBlocks = mainTextRef.value.querySelectorAll(".text-block");
+  let allChars = [];
+
+  // Split each block to preserve the .accent styling, then combine all character nodes
+  textBlocks.forEach((block) => {
+    const chars = splitIntoChars(block);
+    allChars = [...allChars, ...chars];
+  });
+
+  gsap.set(allChars, { yPercent: 110, opacity: 0 });
+
+  gsap.to(allChars, {
+    yPercent: 0,
+    opacity: 1,
+    duration: 0.6,
+    ease: "power3.out",
+    stagger: 0.018,
     scrollTrigger: {
       trigger: mainTextRef.value,
-      start: "top 95%", // Start animating when the top of the text hits 85% viewport height
-      end: "bottom 40%", // End animating when the bottom hits 35% viewport height
-      scrub: 1.5, // Smooth scrubbing effect linked to scroll speed
+      start: "top 80%",
+      end: "top 40%",
+      toggleActions: "play none none reverse",
     },
   });
 
@@ -217,14 +215,8 @@ onMounted(async () => {
     text-align: center;
     line-height: 50px;
 
-    .word-span {
-      display: inline-block;
-      opacity: 0.1;
-      transition: opacity 0.1s ease;
-
-      &.accent {
-        color: var(--accent);
-      }
+    .accent {
+      color: var(--accent);
     }
   }
 

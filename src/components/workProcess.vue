@@ -36,8 +36,9 @@ const sectionRef = ref(null);
 const svgRef = ref(null);
 const strokePathRef = ref(null);
 const cardRefs = ref([]);
-// We store the tween instance so we can kill it when resizing
+
 let scrollTween = null;
+let cardTweens = [];
 
 const cards = [
   {
@@ -79,7 +80,10 @@ const updatePath = () => {
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
 
   const points = [];
-  points.push({ x: w / 2, y: 0 }); // Start
+  points.push({ x: w / 2, y: 0 });
+
+  // Track each card's Y offset from the top of the section
+  const cardOffsets = [];
 
   cardElements.forEach((el, i) => {
     const cardRect = el.getBoundingClientRect();
@@ -87,18 +91,20 @@ const updatePath = () => {
     const cardY = cardRect.top - rect.top + cardRect.height / 2;
     const isMobile = window.innerWidth < 600;
 
+    // Store top edge of card relative to section top (not center)
+    cardOffsets.push(cardRect.top - rect.top);
+
     if (isMobile) {
       const wiggleOffset = 40;
-      const mobileX = (w / 2) + (i % 2 === 0 ? -wiggleOffset : wiggleOffset);
+      const mobileX = w / 2 + (i % 2 === 0 ? -wiggleOffset : wiggleOffset);
       points.push({ x: mobileX, y: cardY });
     } else {
       points.push({ x: cardX, y: cardY });
     }
   });
 
-  points.push({ x: w / 2, y: h }); // End
+  points.push({ x: w / 2, y: h });
 
-  // Build the Path String
   let pathData = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length; i++) {
     const curr = points[i];
@@ -109,35 +115,55 @@ const updatePath = () => {
 
   path.setAttribute("d", pathData);
 
-  // --- FIX: REFRESH ANIMATION ---
-  
-  // 1. Get the new exact length of the line
   const pathLength = path.getTotalLength();
-
-  // 2. Reset the CSS immediately to "hidden" (offset = length)
   path.style.strokeDasharray = pathLength;
   path.style.strokeDashoffset = pathLength;
 
-  // 3. Kill previous ScrollTrigger if it exists to prevent conflicts
-  if (scrollTween) {
-    scrollTween.kill();
-  }
+  // Kill all previous tweens to prevent conflicts on resize
+  if (scrollTween) scrollTween.kill();
+  cardTweens.forEach((t) => t.kill());
+  cardTweens = [];
 
-  // 4. Create a fresh animation for this specific path length
+  // Stroke draw animation (unchanged)
   scrollTween = gsap.to(path, {
-    strokeDashoffset: 0, // Animate to visible
+    strokeDashoffset: 0,
     ease: "none",
     scrollTrigger: {
       trigger: section,
-      start: "top center", // Adjust this if you want it to start earlier/later
+      start: "top center",
       end: "bottom center",
       scrub: 0.5,
     },
   });
+
+  // --- Card reveal: sync with stroke arrival ---
+  // The main stroke trigger maps scroll distance = section height (h).
+  // Each card at cardOffsets[i] from section top is reached at that same
+  // fractional point in the scroll range, so we mirror that offset here.
+  cardElements.forEach((el, i) => {
+    // Reset to hidden
+    gsap.set(el, { opacity: 0, y: 40, scale: 0.97 });
+
+    // "top+=X center" triggers when the point X px below section top
+    // reaches the viewport center — the same moment the stroke passes it.
+    const tween = gsap.to(el, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: section,
+        start: `top+=${cardOffsets[i]} center`,
+        toggleActions: "play none none reverse",
+      },
+    });
+
+    cardTweens.push(tween);
+  });
 };
 
 onMounted(() => {
-  // Timeout ensures DOM is ready (Vue refs + CSS styles applied)
   setTimeout(() => updatePath(), 100);
   window.addEventListener("resize", updatePath);
 });
@@ -145,6 +171,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("resize", updatePath);
   if (scrollTween) scrollTween.kill();
+  cardTweens.forEach((t) => t.kill());
 });
 </script>
 
@@ -194,7 +221,9 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 50px;
 
+    /* Cards start invisible; GSAP takes over from here */
     .card {
+      opacity: 0;
       padding: 15px;
       display: flex;
       flex-direction: column;

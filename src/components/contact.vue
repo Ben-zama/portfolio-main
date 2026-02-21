@@ -1,15 +1,15 @@
 <template>
-  <div id="contact">
-    <div class="contact-container">
+  <div id="contact" ref="contactSection">
+    <div class="contact-container" ref="container">
       
-      <div class="info-grid">
+      <div class="info-grid" ref="infoGrid">
         
-        <div class="tile header-tile">
+        <div class="tile header-tile" ref="headerTile">
           <h2>Let's work <br /><span>together.</span></h2>
           <p>Have a project in mind? Let's build something incredible.</p>
         </div>
 
-        <div class="tile contact-methods">
+        <div class="tile contact-methods" ref="contactMethods">
           <a href="mailto:benzamasimon@gmail.com" class="method-row">
             <div class="icon-box">
               <PhEnvelope weight="duotone" />
@@ -39,7 +39,7 @@
           </a>
         </div>
 
-        <div class="tile freelance-tile">
+        <div class="tile freelance-tile" ref="freelanceTile">
           <span class="tile-label">Available on</span>
           <div class="platforms">
             <a class="platform-card upwork" target="_blank" href="">
@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div class="tile socials-tile">
+        <div class="tile socials-tile" ref="socialsTile">
           <a target="_blank" href="" aria-label="Github"><PhGithubLogo :size="24" weight="fill" /></a>
           <a target="_blank" href="" aria-label="LinkedIn"><PhLinkedinLogo :size="24" weight="fill" /></a>
           <a target="_blank" href="" aria-label="X (Twitter)"><PhXLogo :size="24" weight="fill" /></a>
@@ -61,13 +61,13 @@
         </div>
       </div>
 
-      <div class="form-wrapper">
+      <div class="form-wrapper" ref="formWrapper">
         <form action="">
-          <div class="form-header">
+          <div class="form-header" ref="formHeader">
             <h3>Send a message</h3>
           </div>
 
-          <div class="row">
+          <div class="row" ref="formRow1">
             <div class="input-group">
               <input type="text" id="name" placeholder=" " required />
               <label for="name">Your Name</label>
@@ -78,7 +78,7 @@
             </div>
           </div>
 
-          <div class="row">
+          <div class="row" ref="formRow2">
             <div class="input-group">
               <input type="text" id="subject" placeholder=" " />
               <label for="subject">Subject (Optional)</label>
@@ -89,17 +89,16 @@
             </div>
           </div>
 
-          <div class="input-group full">
+          <div class="input-group full" ref="formTextarea">
             <textarea id="message" placeholder=" " required></textarea>
             <label for="message">Tell me about your project</label>
           </div>
 
-          <button class="send-button" type="submit">
+          <button class="send-button" type="submit" ref="sendBtn">
             <span class="button__icon-wrapper">
               <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" class="button__icon-svg" width="10">
                 <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor"></path>
               </svg>
-
               <svg viewBox="0 0 14 15" fill="none" width="10" xmlns="http://www.w3.org/2000/svg" class="button__icon-svg button__icon-svg__copy">
                 <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor"></path>
               </svg>
@@ -113,6 +112,9 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   PhEnvelope,
   PhGithubLogo,
@@ -122,13 +124,174 @@ import {
   PhXLogo,
   PhArrowUpRight,
 } from "@phosphor-icons/vue";
+
+gsap.registerPlugin(ScrollTrigger);
+
+// Refs
+const contactSection = ref(null);
+const container      = ref(null);
+const headerTile     = ref(null);
+const contactMethods = ref(null);
+const freelanceTile  = ref(null);
+const socialsTile    = ref(null);
+const formWrapper    = ref(null);
+const formHeader     = ref(null);
+const formRow1       = ref(null);
+const formRow2       = ref(null);
+const formTextarea   = ref(null);
+const sendBtn        = ref(null);
+
+let ctx; // GSAP context for cleanup
+
+onMounted(() => {
+  ctx = gsap.context(() => {
+
+    // ─── 1. Shared ScrollTrigger anchor ────────────────────────────────────
+    const trigger = {
+      trigger: contactSection.value,
+      start: "top 70%",
+      once: true,
+    };
+
+    // ─── 2. Left column tiles — staggered slide-up ─────────────────────────
+    gsap.set([headerTile.value, contactMethods.value, freelanceTile.value, socialsTile.value], {
+      opacity: 0,
+      y: 50,
+    });
+
+    gsap.to(
+      [headerTile.value, contactMethods.value, freelanceTile.value, socialsTile.value],
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: 0.12,
+        scrollTrigger: trigger,
+      }
+    );
+
+    // ─── 3. Heading word-split feel — accent span pops in ──────────────────
+    const accentSpan = headerTile.value.querySelector("span");
+    gsap.from(accentSpan, {
+      opacity: 0,
+      x: -20,
+      duration: 0.6,
+      ease: "back.out(1.7)",
+      delay: 0.15,
+      scrollTrigger: trigger,
+    });
+
+    // ─── 4. Form wrapper — clip reveal from bottom ─────────────────────────
+    gsap.set(formWrapper.value, { opacity: 0, y: 60, scale: 0.97 });
+    gsap.to(formWrapper.value, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.8,
+      ease: "power3.out",
+      delay: 0.2,
+      scrollTrigger: trigger,
+    });
+
+    // ─── 5. Form internals — cascade down ──────────────────────────────────
+    const formParts = [
+      formHeader.value,
+      formRow1.value,
+      formRow2.value,
+      formTextarea.value,
+      sendBtn.value,
+    ];
+
+    gsap.set(formParts, { opacity: 0, y: 20 });
+    gsap.to(formParts, {
+      opacity: 1,
+      y: 0,
+      duration: 0.55,
+      ease: "power2.out",
+      stagger: 0.1,
+      delay: 0.45,
+      scrollTrigger: trigger,
+    });
+
+    // ─── 6. Social icons — playful bounce-in stagger ───────────────────────
+    const socialLinks = socialsTile.value.querySelectorAll("a");
+    gsap.from(socialLinks, {
+      scale: 0,
+      opacity: 0,
+      duration: 0.4,
+      ease: "back.out(2)",
+      stagger: 0.08,
+      delay: 0.55,
+      scrollTrigger: trigger,
+    });
+
+    // ─── 7. Platform cards — subtle pop ────────────────────────────────────
+    const platformCards = freelanceTile.value.querySelectorAll(".platform-card");
+    gsap.from(platformCards, {
+      scale: 0.85,
+      opacity: 0,
+      duration: 0.45,
+      ease: "back.out(1.5)",
+      stagger: 0.1,
+      delay: 0.5,
+      scrollTrigger: trigger,
+    });
+
+    // ─── 8. Ambient glow — slow float ──────────────────────────────────────
+    gsap.to(contactSection.value.querySelector("&::before") ?? contactSection.value, {
+      // We'll target the pseudo via a real div trick — instead animate the section bg pulse
+    });
+
+    // ─── 9. Input focus ripple — micro-interaction on focus ────────────────
+    const inputs = formWrapper.value.querySelectorAll("input, textarea");
+    inputs.forEach((input) => {
+      input.addEventListener("focus", () => {
+        gsap.fromTo(
+          input,
+          { scale: 1 },
+          { scale: 1.01, duration: 0.2, ease: "power1.out", yoyo: true, repeat: 1 }
+        );
+      });
+    });
+
+    // ─── 10. Send button — magnetic pulse on hover ─────────────────────────
+    const btn = sendBtn.value;
+    btn.addEventListener("mouseenter", () => {
+      gsap.to(btn, { scale: 1.04, duration: 0.25, ease: "power2.out" });
+    });
+    btn.addEventListener("mouseleave", () => {
+      gsap.to(btn, { scale: 1, duration: 0.3, ease: "elastic.out(1, 0.5)" });
+    });
+
+    // ─── 11. Method rows — slide-in arrow on hover (GSAP layer) ───────────
+    const methodRows = contactMethods.value.querySelectorAll(".method-row");
+    methodRows.forEach((row) => {
+      const arrow = row.querySelector(".arrow-icon");
+      const iconBox = row.querySelector(".icon-box");
+
+      row.addEventListener("mouseenter", () => {
+        gsap.to(arrow, { x: 3, y: -3, duration: 0.25, ease: "power2.out" });
+        gsap.to(iconBox, { scale: 1.08, duration: 0.25, ease: "back.out(2)" });
+      });
+      row.addEventListener("mouseleave", () => {
+        gsap.to(arrow, { x: 0, y: 0, duration: 0.35, ease: "elastic.out(1, 0.6)" });
+        gsap.to(iconBox, { scale: 1, duration: 0.35, ease: "elastic.out(1, 0.6)" });
+      });
+    });
+
+  }, contactSection.value); // scoped to component root
+});
+
+onUnmounted(() => {
+  ctx?.revert(); // clean up all GSAP instances & ScrollTriggers
+});
 </script>
 
 <style lang="scss">
 #contact {
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
   height: auto;
   padding: 60px 20px;
   display: flex;
@@ -151,7 +314,14 @@ import {
     filter: blur(80px);
     z-index: 0;
     pointer-events: none;
+    // Subtle ambient float
+    animation: ambientFloat 8s ease-in-out infinite alternate;
   }
+}
+
+@keyframes ambientFloat {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.15); }
 }
 
 .contact-container {
@@ -198,6 +368,7 @@ import {
       
       span {
         color: var(--accent);
+        display: inline-block;
       }
     }
     p {
@@ -232,7 +403,6 @@ import {
       &:hover {
         background: var(--darker-secondary);
         .arrow-icon {
-          transform: rotate(45deg);
           color: var(--accent);
         }
         .icon-box {
@@ -250,7 +420,8 @@ import {
         display: grid;
         place-items: center;
         font-size: 20px;
-        transition: 0.3s ease;
+        transition: background 0.3s ease, color 0.3s ease;
+        // transform handled by GSAP
       }
 
       .method-text {
@@ -266,16 +437,15 @@ import {
         }
         .value {
           font-size: 1rem;
-          font-weight: 500;
+          font-weight: 600;
           word-break: break-word; 
           line-height: 1.3;
-          font-weight: 600;
         }
       }
 
       .arrow-icon {
-        transition: 0.3s ease;
         font-size: 20px;
+        transition: color 0.3s ease;
         @media (max-width: 360px) {
           display: none;
         }
@@ -312,14 +482,13 @@ import {
         gap: 10px;
         text-decoration: none;
         color: var(--primary);
-        transition: 0.3s ease;
+        transition: border-color 0.3s ease, transform 0.3s ease;
         min-width: 100px; 
 
         img {
           width: 20px;
           height: 20px;
           object-fit: contain;
-          transition: 0.3s;
         }
 
         span {
@@ -346,11 +515,13 @@ import {
 
     a {
       height: 24px;
-      transition: 0.3s;
+      transition: color 0.3s ease;
+      // scale/rotate handled by CSS for hover (GSAP handles entrance)
       
       &:hover {
         color: var(--accent);
         transform: scale(1.25) rotate(5deg);
+        transition: color 0.3s ease, transform 0.3s ease;
       }
     }
   }
@@ -421,8 +592,7 @@ import {
       font-family: var(--body-font);
       color: var(--primary);
       outline: none;
-      transition: 0.3s;
-      font-family: inherit;
+      transition: background 0.3s ease, border-color 0.3s ease;
 
       &:focus {
         background: var(--darker-secondary);
@@ -455,8 +625,7 @@ import {
   }
 }
 
-
-/* --- Restored Button Styles --- */
+/* --- Button Styles --- */
 .send-button {
   width: max-content;
   line-height: 1;
@@ -475,10 +644,10 @@ import {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background-color 0.3s;
-  margin-top: 10px; // Added slightly spacing for the new layout
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  // transform handled by GSAP
 
-  // Mobile adjustment for the new layout
   @media (max-width: 400px) {
     justify-content: center;
     max-width: 100%;
@@ -506,7 +675,7 @@ import {
 
   &:hover {
     background: var(--accent);
-    color: var(--secondary); // Kept text black on purple button for contrast
+    color: var(--secondary);
 
     .button__icon-wrapper {
       background: var(--secondary);
@@ -527,7 +696,6 @@ import {
   }
 }
 
-// Media Query for very small mobile screens (Global Adjustments)
 @media (max-width: 400px) {
   #contact {
     padding: 40px 10px;
