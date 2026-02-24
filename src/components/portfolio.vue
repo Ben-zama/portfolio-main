@@ -203,7 +203,7 @@ onMounted(async () => {
   .intro,
   .outro {
     width: 100%;
-    height: 100svh;
+    height: 50svh;
     max-height: 750px;
     display: flex;
     flex-direction: column;
@@ -212,6 +212,10 @@ onMounted(async () => {
     text-align: center;
     gap: 25px;
     padding: 25px;
+
+    @media (min-width: 600px) and (max-width: 1279px) {
+      height: 100svh;
+    }
 
     h2 {
       max-width: 750px;
