@@ -213,7 +213,7 @@ onMounted(async () => {
     gap: 25px;
     padding: 25px;
 
-    @media (min-width: 600px) and (max-width: 1279px) {
+    @media (min-width: 1280px) {
       height: 100svh;
     }
 
