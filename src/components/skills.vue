@@ -85,7 +85,7 @@ const skillsR = [
 ];
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #skills {
   position: relative;
   background: var(--accent);

@@ -249,7 +249,6 @@ const submitForm = async () => {
       submitStatus.value = 'success';
       form.value = { name: '', email: '', subject: '', phone: '', message: '' };
     } else {
-      // 🐛 ADD THIS: Parse and log the exact error from Formspree
       const errorData = await response.json();
       console.error("Formspree rejected the request:", errorData);
       submitStatus.value = 'error';
@@ -437,7 +436,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #contact {
   background: var(--bg);
   color: var(--text);

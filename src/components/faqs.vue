@@ -142,7 +142,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 /* Kept your existing styles exactly as they were */
 #faqs {
   padding: 75px 25px;

@@ -87,7 +87,7 @@ function animateTextOnScroll(el, trigger) {
     opacity: 1,
     duration: 0.6,
     ease: "power3.out",
-    stagger: 0.018,
+    stagger: 0.025,
   });
 
   return tl;
@@ -110,7 +110,7 @@ function initAnimations() {
   });
 
   ScrollTrigger.create({
-    trigger: ".cards",
+    trigger: "#portfolio .cards",
     start: "top top",
     end: `+=${window.innerHeight * 6}px`,
     pin: true,
@@ -175,11 +175,8 @@ function initAnimations() {
 
 onMounted(async () => {
   try {
-    // Replace with your actual npoint URL
     const response = await fetch("https://api.npoint.io/9aa2fb9cd247400c4dcc"); 
     const data = await response.json();
-    
-    console.log(data)
 
     portfolio.value = data;
 
@@ -195,7 +192,7 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #portfolio {
   background: var(--bg);
   width: 100%;

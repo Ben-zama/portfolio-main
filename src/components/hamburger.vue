@@ -24,7 +24,7 @@ defineProps({
 defineEmits(['toggle'])
 </script>
 
-<style lang="scss" >
+<style lang="scss" scoped>
 
 .hamburger-container {
   position: relative;

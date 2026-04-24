@@ -19,7 +19,7 @@ import Sliders from "./components/sliders.vue";
 import About from "./components/about.vue";
 import Services from "./components/services.vue";
 import workProcess from "./components/workProcess.vue";
-import Skills from "./components/skils.vue";
+import Skills from "./components/skills.vue";
 import Portfolio from "./components/portfolio.vue";
 import FAQs from "./components/faqs.vue"
 import Contact from "./components/contact.vue"

@@ -175,7 +175,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #process {
   position: relative;
   padding: 80px 20px;

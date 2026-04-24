@@ -27,7 +27,7 @@ import { useTheme } from "../composables/useTheme";
 const { isDark } = useTheme();
 </script>
 
-<style>
+<style scoped>
 .switch {
   font-size: 12px;
   position: relative;

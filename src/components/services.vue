@@ -168,7 +168,7 @@ onMounted(() => {
         ease: "power2.out",
       });
       // Simple stagger fade-in for mobile
-      gsap.from(".card", {
+      gsap.from("#services .card", {
         scrollTrigger: {
           trigger: ".card-container",
           start: "top 80%",
@@ -222,9 +222,9 @@ onMounted(() => {
         ">-0.5"
       );
 
-      tl.to(".card-1", { borderRadius: "16px", duration: 0.5 }, "<");
-      tl.to(".card-2", { borderRadius: "16px", duration: 0.5 }, "<");
-      tl.to(".card-3", { borderRadius: "16px", duration: 0.5 }, "<");
+      tl.to("#services .card-1", { borderRadius: "16px", duration: 0.5 }, "<");
+      tl.to("#services .card-2", { borderRadius: "16px", duration: 0.5 }, "<");
+      tl.to("#services .card-3", { borderRadius: "16px", duration: 0.5 }, "<");
 
       // 4. Flip Cards & Fan Out
       tl.to(".card-inner", {
@@ -235,14 +235,19 @@ onMounted(() => {
       });
 
       // Fan effect
-      tl.to(".card-1", { y: 50, rotation: -15, duration: 3 }, "<");
-      tl.to(".card-2", { y: 10, duration: 3 }, "<");
-      tl.to(".card-3", { y: 50, rotation: 15, duration: 3 }, "<");
+      tl.to("#services .card-1", { y: 50, rotation: -15, duration: 3 }, "<");
+      tl.to("#services .card-2", { y: 10, duration: 3 }, "<");
+      tl.to("#services .card-3", { y: 50, rotation: 15, duration: 3 }, "<");
 
       // Buffer
       tl.to({}, { duration: 0.5 });
 
       animateTextOnScroll(outroText.value);
+
+      gsap.set(ctaRef.value.$el, {
+        y: 0,
+        opacity: 1
+      })
 
       gsap.from(ctaRef.value.$el, {
         y: 50,
@@ -251,7 +256,7 @@ onMounted(() => {
         ease: "power3.out",
         delay: 0.3,
         scrollTrigger: {
-          trigger: $el,
+          trigger: ctaRef.value.$el,
           start: "top 80%",
           toggleActions: "play none none reverse",
         },
@@ -284,11 +289,12 @@ onUnmounted(() => {
   padding: 40px 20px;
   text-align: center;
   gap: 75px;
-
+  
   h2 {
     font-family: var(--alternate-font);
     font-size: clamp(40px, 8vw, 100px);
     line-height: 1.1;
+    max-width: 1000px;
   }
 
   .button {

@@ -1,20 +1,18 @@
 <template>
   <div class="sliders">
-    <client-only>
-      <Vue3Marquee direction="reverse" :clone="true" class="slider1">
-        <div class="item" v-for="item in services" :key="item">
-          <p>{{ item }}</p>
-          <span>/</span>
-        </div>
-      </Vue3Marquee>
+    <Vue3Marquee direction="reverse" :clone="true" class="slider1">
+      <div class="item" v-for="item in services" :key="item">
+        <p>{{ item }}</p>
+        <span>/</span>
+      </div>
+    </Vue3Marquee>
 
-      <Vue3Marquee class="slider2" :pause-on-hover="true">
-        <div class="item skill-item" v-for="item in skills" :key="item">
-          <img :src="item.icon" alt="" />
-          <p>{{ item.name }}</p>
-        </div>
-      </Vue3Marquee>
-    </client-only>
+    <Vue3Marquee class="slider2" :pause-on-hover="true">
+      <div class="item skill-item" v-for="item in skills" :key="item">
+        <img :src="item.icon" alt="" />
+        <p>{{ item.name }}</p>
+      </div>
+    </Vue3Marquee>
   </div>
 </template>
 
@@ -38,7 +36,7 @@ const skills = [
   { name: "JavaScript", icon: "/icons/js.png" },
   { name: "TypeScript", icon: "/icons/ts.png" },
   { name: "TailwindCSS", icon: "/icons/tailwind.png" },
-    { name: "Bootstrap", icon: "/icons/bootstrap.svg"},
+  { name: "Bootstrap", icon: "/icons/bootstrap.svg" },
   { name: "Sass", icon: "/icons/sass.png" },
   { name: "VueJS", icon: "/icons/vue.png" },
   { name: "Nuxt", icon: "/icons/nuxt.png" },
