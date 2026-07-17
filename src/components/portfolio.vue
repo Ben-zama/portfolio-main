@@ -304,15 +304,14 @@ onMounted(async () => {
         p {
           margin-top: 15px;
           font-family: var(--body-font);
-          font-size: 15px;
-          font-size: 15px;
+          font-size: clamp(12.5px, 8vw, 17.5px);
           opacity: 0.6;
         }
 
         h2 {
           font-family: var(--header-font);
           font-weight: 900;
-          font-size: clamp(40px, 8vw, 50px);
+          font-size: clamp(30px, 8vw, 50px);
         }
 
         .button {
