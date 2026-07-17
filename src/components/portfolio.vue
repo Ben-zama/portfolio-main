@@ -293,9 +293,14 @@ onMounted(async () => {
       .col {
         height: 100%;
         color: var(--text);
-
         width: 100%;
 
+
+        @media (min-width: 600px) {
+  p {
+font-size: 15px;
+}
+}
         @media (min-width: 1280px) {
           width: auto;
           flex: 1;
@@ -304,7 +309,7 @@ onMounted(async () => {
         p {
           margin-top: 15px;
           font-family: var(--body-font);
-          font-size: clamp(10px, 8vw, 17.5px);
+          font-size: 12.5px;
           opacity: 0.6;
         }
 
