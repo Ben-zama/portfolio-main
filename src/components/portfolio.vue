@@ -304,7 +304,7 @@ onMounted(async () => {
         p {
           margin-top: 15px;
           font-family: var(--body-font);
-          font-size: clamp(12.5px, 8vw, 17.5px);
+          font-size: clamp(10px, 8vw, 17.5px);
           opacity: 0.6;
         }
 
